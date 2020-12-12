@@ -3,7 +3,7 @@ import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'ShowUser.dart';
-
+import 'Drawer.dart';
 class JsonMe extends StatefulWidget {
   @override
   _JsonMeState createState() => _JsonMeState();
@@ -12,6 +12,7 @@ class JsonMe extends StatefulWidget {
 class _JsonMeState extends State<JsonMe> {
   List<dynamic> userList = new List();
   bool isLoading = true;
+  GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
 
   @override
   void initState() {
@@ -21,92 +22,83 @@ class _JsonMeState extends State<JsonMe> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return new Container(
-        color: Colors.black,
-        child: Center(
-          child: CircularProgressIndicator(
-            semanticsLabel: "users",
-          ),
-        ),
-      );
-    }
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SafeArea(
         child: Scaffold(
+          key: _drawerKey,
+          drawer: drawer(),
           appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(
+                  Icons.menu,
+              ),
+              onPressed: (){
+                _drawerKey.currentState.openDrawer();
+              },
+            ),
             title: Text(
                 "users",
               style: TextStyle(fontSize: 35 , color: Colors.black , fontWeight: FontWeight.w700),
             ),
-            actions: <Widget>[
-              IconButton(
-                color: Colors.black,
-                icon: Icon(Icons.refresh),
-                onPressed:(){
-                _setData();
-                },
-              ),
-            ],
           ),
           body: Container(
             color: Colors.blue[900],
             child: RefreshIndicator(
-            onRefresh: _refresh,
-            child: ListView.builder(
-            itemCount: userList.length,
-            itemBuilder: (BuildContext context, int index) {
-            var user = userList[index];
-            return new Container(
-              margin: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-              decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              title: Text(
-                user['username'],
-                style: TextStyle(
-                  fontSize: 23,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black,
-                ),
-              ),
-              subtitle: Text(
-                user['email'],
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w300
-                ),
-              ),
-              leading: IconButton(
-                icon: new CircleAvatar(
-                  radius: 30,
-                  child: Container(
-                    width:  100,
-                    height: 100,
-                    child: SvgPicture.network(
-                      user['avatar'],
+              onRefresh: _refresh,
+              child: ListView.builder(
+                itemCount: userList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  var user = userList[index];
+                  return new Container(
+                    margin: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  backgroundColor: Colors.white,
-                ),
-                onPressed: () async{
-                  await showDialog(
-                      context: context, builder: (_) => ImageDialog(user));
+                    child: ListTile(
+                      title: Text(
+                        user['username'],
+                        style: TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                        ),
+                      ),
+                      subtitle: Text(
+                        user['email'],
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w300
+                        ),
+                      ),
+                      leading: IconButton(
+                        icon: new CircleAvatar(
+                          radius: 30,
+                          child: Container(
+                            width:  100,
+                            height: 100,
+                            child: SvgPicture.network(
+                              user['avatar'],
+                            ),
+                          ),
+                          backgroundColor: Colors.white,
+                        ),
+                        onPressed: () async{
+                          await showDialog(
+                              context: context, builder: (_) => ImageDialog(user));
+                        },
+                      ),
+                      onTap: () async {
+                        Navigator.push(context, MaterialPageRoute(builder:(context) => ShowUser(user)));
+                      },
+                    ),
+                  );
                 },
               ),
-              onTap: () async {
-                Navigator.push(context, MaterialPageRoute(builder:(context) => ShowUser(user)));
-              },
             ),
-          );
-        },
-      ),
-    ),
-          ),
+
+          )
         ),
       ),
     );
@@ -114,18 +106,22 @@ class _JsonMeState extends State<JsonMe> {
 
 
   Future<Null> _refresh() async{
-    await _setData();
+
+    setState(() {
+      userList.clear();
+    });
+     await _setData();
   }
 
   void _setData() async {
     var url = "https://jsonplaceholder.ir/users";
+
     var response = await http.get(
       url,
     );
     if (response.statusCode == 200) {
       setState(
             () {
-              print("__________________refresh__________________");
           userList = convert.jsonDecode(response.body);
           userList += userList;
           isLoading = false;
@@ -149,19 +145,13 @@ class _ImageDialogState extends State<ImageDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.blue[800],
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Image.asset(
-            'assets/images/1.png',
-            fit: BoxFit.cover,
-          ),
-            Container(
-              decoration: BoxDecoration(
-              ),
-            width: 90,
-            height: 90,
-            // alignment: AlignmentDirectional.centerEnd,
+          Container(
+            width: 100,
+            height: 100,
             child: SvgPicture.network(
               this.list['avatar'],
               fit: BoxFit.cover,

@@ -39,50 +39,49 @@ import 'package:json/Json.dart';
                       ],
                     ),
                 ),
-              body: Stack(
-                children: [
-                  Container(
-                    width: width,
-                    height: height,
-                    child: Image.asset(
-                      'assets/images/4.png',
-                      fit: BoxFit.cover,
+              body: SingleChildScrollView(
+                child: Stack(
+                  children: [
+                    Container(
+                      width: width,
+                      height: height,
+                     color: Colors.blue[700],
                     ),
-                  ),
-                  Container(
-                    child: Column(
-                      children: [
-                        Container(
-                            width: width,
-                            height: height/5,
-                            child: SvgPicture.network(user['avatar'])
-                        ),
-                        Container(
-                          child: Column(
-                            children: [
-                              Container(
-                                width: width,
-                                child: Text(
-                                  user['name'],
-                                  style: TextStyle(fontSize: 45 , fontWeight: FontWeight.w800 , color: Colors.white),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              info(user['username'], width),
-                              info(user['phone'] , width),
-                              info(user['email'], width),
-                              info(address['country'], width),
-                              info(address['city'], width),
-                              info(address['street'] , width),
-                              info(user['website'] , width),
-                              info(user['company'], width),
-                            ],
+                    Container(
+                      child: Column(
+                        children: [
+                          Container(
+                              width: width,
+                              height: height/5,
+                              child: SvgPicture.network(user['avatar'])
                           ),
-                        ),
-                      ],
+                          Container(
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: width,
+                                  child: Text(
+                                    user['name'],
+                                    style: TextStyle(fontSize: 45 , fontWeight: FontWeight.w800 , color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                info(user['username'], width),
+                                info(user['phone'] , width),
+                                info(user['email'], width),
+                                info(address['country'], width),
+                                info(address['city'], width),
+                                info(address['street'] , width),
+                                info(user['website'] , width),
+                                info(user['company'], width),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               )
             ),
           ),
